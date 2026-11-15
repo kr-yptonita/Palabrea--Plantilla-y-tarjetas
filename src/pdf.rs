@@ -347,15 +347,14 @@ fn draw_placed_word(stream: &mut String, pw: &PlacedWord) {
     }
 }
 
-/// Genera y escribe el documento PDF completo en disco:
+/// Construye en memoria los bytes del documento PDF completo y devuelve `(bytes, total_pages)`:
 /// - Primeras páginas: Tarjetas en cuadrícula 3x2 (6 por hoja).
 /// - Última página: Hoja de encerrar palabras ocupando una hoja completa.
-pub fn write_activity_pdf(
-    output_path: &Path,
+pub fn build_activity_pdf_bytes(
     paper_size: PaperSize,
     cards: &[Card],
     sheet: &WordCloudSheet,
-) -> io::Result<usize> {
+) -> io::Result<(Vec<u8>, usize)> {
     let (card_page_w, card_page_h) = paper_size.landscape_dimensions_pt();
 
     // Construir los flujos de contenido de cada página
@@ -481,6 +480,19 @@ pub fn write_activity_pdf(
         xref_offset
     )?;
 
+    Ok((pdf_bytes, total_pages))
+}
+
+/// Genera y escribe el documento PDF completo en disco:
+/// - Primeras páginas: Tarjetas en cuadrícula 3x2 (6 por hoja).
+/// - Última página: Hoja de encerrar palabras ocupando una hoja completa.
+pub fn write_activity_pdf(
+    output_path: &Path,
+    paper_size: PaperSize,
+    cards: &[Card],
+    sheet: &WordCloudSheet,
+) -> io::Result<usize> {
+    let (pdf_bytes, total_pages) = build_activity_pdf_bytes(paper_size, cards, sheet)?;
     let mut file = File::create(output_path)?;
     file.write_all(&pdf_bytes)?;
     file.flush()?;

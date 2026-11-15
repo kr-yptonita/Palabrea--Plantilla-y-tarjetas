@@ -1,11 +1,19 @@
 pub mod cards;
+pub mod communicator;
+pub mod lectura_gen;
+pub mod lectura_pdf;
 pub mod lexicon;
+pub mod math_gen;
+pub mod math_layout;
+pub mod math_pdf;
 pub mod pdf;
+pub mod server;
 pub mod wordcloud;
 
 use cards::generate_cards;
 use lexicon::{Rng, WordEntry};
 use pdf::{write_activity_pdf, PaperSize};
+use server::run_web_server;
 use std::env;
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -17,6 +25,8 @@ struct CliOptions {
     paper_size: Option<PaperSize>,
     output_path: Option<PathBuf>,
     seed: Option<u64>,
+    web_mode: bool,
+    port: Option<u16>,
     show_help: bool,
 }
 
@@ -86,6 +96,22 @@ fn parse_cli_args() -> Result<CliOptions, String> {
                 opts.seed = Some(seed);
                 i += 1;
             }
+            "-w" | "--web" | "--servidor" | "--server" => {
+                opts.web_mode = true;
+                i += 1;
+            }
+            "-p" | "--puerto" | "--port" => {
+                i += 1;
+                let val = args
+                    .get(i)
+                    .ok_or_else(|| "Falta el número de puerto después de --puerto".to_string())?;
+                let port: u16 = val
+                    .parse()
+                    .map_err(|_| format!("Puerto inválido: '{}'", val))?;
+                opts.port = Some(port);
+                opts.web_mode = true;
+                i += 1;
+            }
             other => {
                 return Err(format!(
                     "Argumento no reconocido: '{}'. Usa --ayuda para ver las opciones.",
@@ -100,16 +126,21 @@ fn parse_cli_args() -> Result<CliOptions, String> {
 
 fn print_help() {
     println!("==================================================================");
-    println!("  PALABREA: Generador Dinámico de Plantilla de Palabras y Tarjetas");
+    println!("  PALABREA & AULAFORJA: Plataforma Web y Generador Didáctico PDF");
     println!("==================================================================");
     println!();
-    println!("Uso interactivo:");
+    println!("Modo Servidor Web (Catálogo + Estudio Interactivo + Comunicador):");
+    println!("  cargo run -- --web [--puerto <8080>]");
+    println!();
+    println!("Uso interactivo por terminal:");
     println!("  cargo run");
     println!();
-    println!("Uso con argumentos:");
+    println!("Uso directo con argumentos CLI:");
     println!("  cargo run -- --tarjetas <N> --formato <a4|letter> [--salida <archivo.pdf>] [--semilla <N>]");
     println!();
     println!("Opciones:");
+    println!("  -w, --web                  Inicia la aplicación web y el Comunicador de Herramientas");
+    println!("  -p, --puerto <PUERTO>      Puerto HTTP para la aplicación web (por defecto: 8080)");
     println!("  -t, --tarjetas <N>         Cantidad de tarjetas a generar (6 por hoja en 3x2)");
     println!("  -f, --formato <a4|letter>  Tamaño de las hojas del PDF: 'a4' o 'letter'");
     println!("  -o, --salida <ruta.pdf>    Nombre o ruta del PDF generado (por defecto: palabrea_actividad.pdf)");
@@ -189,11 +220,36 @@ fn main() {
         return;
     }
 
+    if opts.web_mode {
+        let port = opts.port.unwrap_or(8080);
+        let workspace_dir = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        if let Err(err) = run_web_server(port, workspace_dir) {
+            eprintln!("Error al iniciar el servidor web en el puerto {}: {}", port, err);
+            std::process::exit(1);
+        }
+        return;
+    }
+
     let interactive = opts.card_count.is_none() || opts.paper_size.is_none();
     if interactive {
         println!("==================================================================");
-        println!("  PALABREA: Generador Dinámico de Plantilla y Tarjetas en PDF");
+        println!("  PALABREA & AULAFORJA: Generador Dinámico y Plataforma Web");
         println!("==================================================================");
+        print!("¿Deseas abrir la Plataforma Web (w) o generar PDF por consola (c)? [por defecto: c]: ");
+        let _ = io::stdout().flush();
+        let mut mode_in = String::new();
+        if io::stdin().read_line(&mut mode_in).is_ok() {
+            let m = mode_in.trim().to_ascii_lowercase();
+            if m == "w" || m == "web" {
+                let port = opts.port.unwrap_or(8080);
+                let workspace_dir = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+                if let Err(err) = run_web_server(port, workspace_dir) {
+                    eprintln!("Error al iniciar el servidor web: {}", err);
+                    std::process::exit(1);
+                }
+                return;
+            }
+        }
     }
 
     let card_count = opts.card_count.unwrap_or_else(prompt_card_count);
