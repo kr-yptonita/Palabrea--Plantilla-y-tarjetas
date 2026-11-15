@@ -1,0 +1,17 @@
+[package]
+name = "palabrea"
+version = "0.1.0"
+edition = "2021"
+description = "Generadores dinámicos en PDF de materiales didácticos (Palabrea y Operaciones Aritméticas)"
+authors = ["Materiales Didácticos"]
+default-run = "operaciones"
+
+[[bin]]
+name = "palabrea"
+path = "src/main.rs"
+
+[[bin]]
+name = "operaciones"
+path = "src/bin/operaciones.rs"
+
+[dependencies]
