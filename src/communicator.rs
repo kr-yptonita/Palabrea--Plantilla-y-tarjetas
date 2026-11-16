@@ -842,15 +842,27 @@ impl OperacionesMathTool {
             },
             ToolParamSchema {
                 name: "notation".to_string(),
-                label: "Notación de la división".to_string(),
-                description: "Estilo de representación para las divisiones.".to_string(),
+                label: "Notación de la división (Las 2 opciones)".to_string(),
+                description: "Elige entre Caja tradicional hispana (Dividendo | Divisor) o Galera / Casita (Divisor ⟌ Dividendo).".to_string(),
                 param_type: ParamType::Select {
                     options: vec![
-                        ("tradicional".to_string(), "Caja tradicional (Dividendo | Divisor)".to_string()),
-                        ("galera".to_string(), "Galera / Casita (Divisor ⟌ Dividendo)".to_string()),
+                        ("tradicional".to_string(), "Opción 1: Caja tradicional (Dividendo | Divisor)".to_string()),
+                        ("galera".to_string(), "Opción 2: Galera / Casita (Divisor ⟌ Dividendo)".to_string()),
                     ],
                 },
                 default_value: "tradicional".to_string(),
+            },
+            ToolParamSchema {
+                name: "exact".to_string(),
+                label: "Tipo de residuo en división".to_string(),
+                description: "Permite generar divisiones con cualquier residuo o únicamente divisiones exactas.".to_string(),
+                param_type: ParamType::Select {
+                    options: vec![
+                        ("false".to_string(), "Mixtas (Con y sin residuo)".to_string()),
+                        ("true".to_string(), "Solo divisiones exactas (Residuo 0)".to_string()),
+                    ],
+                },
+                default_value: "false".to_string(),
             },
             ToolParamSchema {
                 name: "lang".to_string(),
@@ -962,6 +974,15 @@ impl OperacionesMathTool {
         let div_dividend = digits_a.clamp(2, 5);
         let div_divisor = digits_b.clamp(1, 3).min(div_dividend - 1).max(1);
 
+        let exact_only = matches!(
+            params
+                .get_str("exact")
+                .unwrap_or("false")
+                .to_ascii_lowercase()
+                .as_str(),
+            "true" | "1" | "exacta" | "si"
+        );
+
         let cfg = WorksheetConfig {
             operation: op,
             multiplication: MultiplicationConfig {
@@ -972,7 +993,7 @@ impl OperacionesMathTool {
                 dividend_digits: div_dividend,
                 divisor_digits: div_divisor,
                 notation,
-                exact_only: false,
+                exact_only,
             },
             addition: AdditionConfig {
                 addend_count: 2,
@@ -2022,6 +2043,284 @@ impl StoredMaterial {
             self.created_epoch_secs,
             self.is_generated_dir
         )
+    }
+}
+
+/// Paquete didáctico preconfigurado para el Portal Público General (orientado a familias, alumnos y maestros).
+#[derive(Clone, Debug)]
+pub struct PublicPreset {
+    pub id: String,
+    pub tool_id: String,
+    pub title: String,
+    pub subtitle: String,
+    pub description: String,
+    pub grade_id: String,    // "ciclo1" | "ciclo2" | "ciclo3"
+    pub grade_label: String, // "1.º y 2.º Primaria (6–8 años)" etc.
+    pub subject_id: String,  // "palabras" | "matematicas" | "lectura"
+    pub subject_label: String,
+    pub color_theme: String, // "amber" | "emerald" | "indigo" | "rose" | "sky" | "violet"
+    pub emoji: String,
+    pub includes_summary: String,
+    pub query_string: String,
+    pub featured: bool,
+}
+
+impl PublicPreset {
+    pub fn to_json(&self) -> String {
+        format!(
+            "{{\"id\":\"{}\",\"tool_id\":\"{}\",\"title\":\"{}\",\"subtitle\":\"{}\",\"description\":\"{}\",\"grade_id\":\"{}\",\"grade_label\":\"{}\",\"subject_id\":\"{}\",\"subject_label\":\"{}\",\"color_theme\":\"{}\",\"emoji\":\"{}\",\"includes_summary\":\"{}\",\"query_string\":\"{}\",\"featured\":{}}}",
+            json_escape(&self.id),
+            json_escape(&self.tool_id),
+            json_escape(&self.title),
+            json_escape(&self.subtitle),
+            json_escape(&self.description),
+            json_escape(&self.grade_id),
+            json_escape(&self.grade_label),
+            json_escape(&self.subject_id),
+            json_escape(&self.subject_label),
+            json_escape(&self.color_theme),
+            json_escape(&self.emoji),
+            json_escape(&self.includes_summary),
+            json_escape(&self.query_string),
+            self.featured
+        )
+    }
+}
+
+impl ToolCommunicator {
+    /// Devuelve los paquetes preconfigurados por nivel escolar para el portal de público general,
+    /// además de agregar automáticamente cualquier herramienta externa descubierta.
+    pub fn list_public_presets(&self) -> Vec<PublicPreset> {
+        let mut presets = vec![
+            // =================================================================
+            // NIVEL 1: 1.º Y 2.º DE PRIMARIA (6–8 AÑOS)
+            // =================================================================
+            PublicPreset {
+                id: "sumas-iniciales".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Mis Primeras Sumas con Casillas".to_string(),
+                subtitle: "Sumas verticales de 2 cifras con guía paso a paso".to_string(),
+                description: "Ficha a color ideal para niños de 6 a 8 años. Cada suma tiene casillas grandes para alinear unidades y decenas sin confundirse.".to_string(),
+                grade_id: "ciclo1".to_string(),
+                grade_label: "1.º y 2.º Primaria (6–8 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "emerald".to_string(),
+                emoji: "➕".to_string(),
+                includes_summary: "12 ejercicios a color + Hoja de respuestas resuelta".to_string(),
+                query_string: "operation=suma&cards=12&digits_a=2&digits_b=2&filename=ficha_sumas_primaria_inicial.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "restas-iniciales".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Restas Sencillas Paso a Paso".to_string(),
+                subtitle: "Sustracción vertical de 2 cifras con casillas guía".to_string(),
+                description: "Practica la resta con números de dos dígitos en tarjetas pastel numeradas. Incluye solucionario completo para revisar en casa.".to_string(),
+                grade_id: "ciclo1".to_string(),
+                grade_label: "1.º y 2.º Primaria (6–8 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "amber".to_string(),
+                emoji: "➖".to_string(),
+                includes_summary: "12 restas guiadas + Solucionario para padres/maestros".to_string(),
+                query_string: "operation=resta&cards=12&digits_a=2&digits_b=2&filename=ficha_restas_inicial.pdf".to_string(),
+                featured: false,
+            },
+            PublicPreset {
+                id: "lectura-animales-inicial".to_string(),
+                tool_id: "lectura-escritura".to_string(),
+                title: "Completa la Frase: Animales y Naturaleza".to_string(),
+                subtitle: "Oraciones sencillas con 3 opciones (a, b, c) para elegir y escribir".to_string(),
+                description: "Refuerza la lectura comprensiva y la caligrafía completando frases divertidas sobre animales con apoyo de incisos.".to_string(),
+                grade_id: "ciclo1".to_string(),
+                grade_label: "1.º y 2.º Primaria (6–8 años)".to_string(),
+                subject_id: "lectura".to_string(),
+                subject_label: "Lectura y Escritura".to_string(),
+                color_theme: "sky".to_string(),
+                emoji: "🐾".to_string(),
+                includes_summary: "7 oraciones con incisos + Hoja con respuestas correctas".to_string(),
+                query_string: "cards=7&theme=animales&blank_mode=final&exercise_mode=opciones&filename=lectura_animales_primaria.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "palabrea-exploradores".to_string(),
+                tool_id: "palabrea".to_string(),
+                title: "Juego Palabrea: Exploradores de Sílabas".to_string(),
+                subtitle: "12 tarjetas recortables + Hoja gigante de palabras para encerrar".to_string(),
+                description: "¡Aprender jugando! Recorta las tarjetas y compite por encontrar primero un animal, color o alimento con el número exacto de sílabas.".to_string(),
+                grade_id: "ciclo1".to_string(),
+                grade_label: "1.º y 2.º Primaria (6–8 años)".to_string(),
+                subject_id: "palabras".to_string(),
+                subject_label: "Juegos de Vocabulario".to_string(),
+                color_theme: "indigo".to_string(),
+                emoji: "🎲".to_string(),
+                includes_summary: "2 hojas de tarjetas (12 retos) + 1 tablero de palabras".to_string(),
+                query_string: "cards=12&kind_filter=CategoryAndSyllables&filename=palabrea_exploradores_silabas.pdf".to_string(),
+                featured: false,
+            },
+
+            // =================================================================
+            // NIVEL 2: 3.º Y 4.º DE PRIMARIA (8–10 AÑOS)
+            // =================================================================
+            PublicPreset {
+                id: "multiplicaciones-intermedias".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Multiplicaciones de 3 × 2 Cifras con Productos Parciales".to_string(),
+                subtitle: "Cuadrícula exacta para colocar cada fila de multiplicación".to_string(),
+                description: "Ayuda a dominar la multiplicación de varias cifras mostrando exactamente dónde se coloca cada producto parcial desplazado.".to_string(),
+                grade_id: "ciclo2".to_string(),
+                grade_label: "3.º y 4.º Primaria (8–10 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "rose".to_string(),
+                emoji: "✖️".to_string(),
+                includes_summary: "12 multiplicaciones paso a paso + Hoja resuelta".to_string(),
+                query_string: "operation=multiplicacion&cards=12&digits_a=3&digits_b=2&filename=ficha_multiplicaciones_3x2.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "divisiones-iniciales-3x1".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Divisiones de 3 ÷ 1 Cifra Paso a Paso".to_string(),
+                subtitle: "Disponible en las 2 opciones: Caja tradicional (84 | 4) o Casita / Galera (4 ⟌ 84)".to_string(),
+                description: "Elige abajo tu estilo de división preferido (Caja o Casita). Incluye casillas guía para el cociente y cada resta intermedia.".to_string(),
+                grade_id: "ciclo2".to_string(),
+                grade_label: "3.º y 4.º Primaria (8–10 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "sky".to_string(),
+                emoji: "➗".to_string(),
+                includes_summary: "12 divisiones (Caja o Casita a elegir) + Solucionario paso a paso".to_string(),
+                query_string: "operation=division&cards=12&digits_a=3&digits_b=1&notation=galera&filename=ficha_divisiones_3x1.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "lectura-banco-palabras".to_string(),
+                tool_id: "lectura-escritura".to_string(),
+                title: "Reto de Comprensión con Banco de Palabras".to_string(),
+                subtitle: "Lee el recuadro de palabras y descubre dónde encaja cada una".to_string(),
+                description: "14 oraciones variadas sobre escuela, ciencia y vida cotidiana con un banco de palabras desordenado en la parte superior.".to_string(),
+                grade_id: "ciclo2".to_string(),
+                grade_label: "3.º y 4.º Primaria (8–10 años)".to_string(),
+                subject_id: "lectura".to_string(),
+                subject_label: "Lectura y Escritura".to_string(),
+                color_theme: "violet".to_string(),
+                emoji: "📖".to_string(),
+                includes_summary: "2 páginas de ejercicios (14 frases) + 2 páginas de respuestas".to_string(),
+                query_string: "cards=14&theme=todos&blank_mode=clave&exercise_mode=banco&filename=lectura_banco_palabras_intermedio.pdf".to_string(),
+                featured: false,
+            },
+            PublicPreset {
+                id: "palabrea-familiar-completo".to_string(),
+                tool_id: "palabrea".to_string(),
+                title: "Juego Palabrea Clásico: Edición Familiar (18 Tarjetas)".to_string(),
+                subtitle: "Combina retos de categorías, letras, sílabas y vocales".to_string(),
+                description: "El juego completo listo para imprimir: 3 hojas de tarjetas variadas y una nube gigante de palabras para encerrar con lápices de colores.".to_string(),
+                grade_id: "ciclo2".to_string(),
+                grade_label: "3.º y 4.º Primaria (8–10 años)".to_string(),
+                subject_id: "palabras".to_string(),
+                subject_label: "Juegos de Vocabulario".to_string(),
+                color_theme: "indigo".to_string(),
+                emoji: "🌟".to_string(),
+                includes_summary: "18 tarjetas de retos (3 hojas) + 1 tablero de palabras".to_string(),
+                query_string: "cards=18&kind_filter=all&filename=palabrea_edicion_familiar_18t.pdf".to_string(),
+                featured: true,
+            },
+
+            // =================================================================
+            // NIVEL 3: 5.º Y 6.º DE PRIMARIA / SECUNDARIA (10–13 AÑOS)
+            // =================================================================
+            PublicPreset {
+                id: "divisiones-avanzadas-4x2".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Divisiones de 4 ÷ 2 Cifras Paso a Paso".to_string(),
+                subtitle: "Disponible en las 2 opciones: Caja tradicional (Dividendo | Divisor) o Casita (Divisor ⟌ Dividendo)".to_string(),
+                description: "Entrenamiento de división larga con todas las bajadas de cifras y residuo final verificados. Selecciona Caja o Casita antes de descargar.".to_string(),
+                grade_id: "ciclo3".to_string(),
+                grade_label: "5.º y 6.º Primaria (10–13 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "emerald".to_string(),
+                emoji: "📐".to_string(),
+                includes_summary: "12 divisiones avanzadas (Caja o Casita) + Solucionario paso a paso".to_string(),
+                query_string: "operation=division&cards=12&digits_a=4&digits_b=2&notation=tradicional&filename=ficha_divisiones_4x2.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "desafio-aritmetico-mixto".to_string(),
+                tool_id: "operaciones".to_string(),
+                title: "Maratón Aritmético Mixto (+, −, ×, ÷)".to_string(),
+                subtitle: "Las 4 operaciones combinadas en una sola lámina de repaso".to_string(),
+                description: "Ideal para repaso general o evaluación rápida: combina sumas, restas, multiplicaciones y divisiones con sus respuestas detalladas.".to_string(),
+                grade_id: "ciclo3".to_string(),
+                grade_label: "5.º y 6.º Primaria (10–13 años)".to_string(),
+                subject_id: "matematicas".to_string(),
+                subject_label: "Matemáticas".to_string(),
+                color_theme: "amber".to_string(),
+                emoji: "🏆".to_string(),
+                includes_summary: "12 retos combinados + Hoja de respuestas completa".to_string(),
+                query_string: "operation=mixto&cards=12&digits_a=3&digits_b=2&filename=maraton_aritmetico_mixto.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "taller-sinonimos-antonimos".to_string(),
+                tool_id: "taller-lexico".to_string(),
+                title: "Desafío de Sinónimos, Antónimos y Agilidad Léxica".to_string(),
+                subtitle: "24 tarjetas enfocadas en vocabulario avanzado y significados opuestos".to_string(),
+                description: "Enriquece el vocabulario buscando parejas de sinónimos y antónimos ocultas dentro de la hoja dinámica de palabras.".to_string(),
+                grade_id: "ciclo3".to_string(),
+                grade_label: "5.º y 6.º Primaria (10–13 años)".to_string(),
+                subject_id: "palabras".to_string(),
+                subject_label: "Juegos de Vocabulario".to_string(),
+                color_theme: "violet".to_string(),
+                emoji: "🧠".to_string(),
+                includes_summary: "24 tarjetas de semántica (4 hojas) + 1 tablero de palabras".to_string(),
+                query_string: "cards=24&kind_filter=SynonymsAndAntonyms&filename=taller_sinonimos_antonimos.pdf".to_string(),
+                featured: true,
+            },
+            PublicPreset {
+                id: "lectura-escritura-libre".to_string(),
+                tool_id: "lectura-escritura".to_string(),
+                title: "Deducción Lectora y Escritura sin Pistas".to_string(),
+                subtitle: "Completa oraciones de ciencia, escuela y naturaleza por contexto".to_string(),
+                description: "Modalidad de respuesta abierta en línea sin incisos para ejercitar la deducción contextual, más hoja de soluciones para el profesor.".to_string(),
+                grade_id: "ciclo3".to_string(),
+                grade_label: "5.º y 6.º Primaria (10–13 años)".to_string(),
+                subject_id: "lectura".to_string(),
+                subject_label: "Lectura y Escritura".to_string(),
+                color_theme: "rose".to_string(),
+                emoji: "✍️".to_string(),
+                includes_summary: "14 oraciones de deducción + Hoja de respuestas".to_string(),
+                query_string: "cards=14&theme=escuela&blank_mode=azar&exercise_mode=libre&filename=lectura_deduccion_avanzada.pdf".to_string(),
+                featured: false,
+            },
+        ];
+
+        // Agregar automáticamente cualquier herramienta externa descubierta por el Comunicador
+        for tool in &self.tools {
+            let m = tool.manifest();
+            if m.source_kind == "external-cli" {
+                presets.push(PublicPreset {
+                    id: format!("preset-{}", m.id),
+                    tool_id: m.id.clone(),
+                    title: m.name.clone(),
+                    subtitle: m.subtitle.clone(),
+                    description: m.description.clone(),
+                    grade_id: "ciclo2".to_string(),
+                    grade_label: m.age_range.clone(),
+                    subject_id: "palabras".to_string(),
+                    subject_label: m.category.clone(),
+                    color_theme: "indigo".to_string(),
+                    emoji: "✨".to_string(),
+                    includes_summary: "Material PDF listo para imprimir".to_string(),
+                    query_string: format!("filename={}.pdf", m.id),
+                    featured: false,
+                });
+            }
+        }
+
+        presets
     }
 }
 

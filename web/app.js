@@ -235,6 +235,8 @@
             ? '✨'
             : tool.icon === 'calculator'
             ? '🧮'
+            : tool.icon === 'book'
+            ? '📖'
             : tool.icon === 'book-open'
             ? '📘'
             : '🛠️';

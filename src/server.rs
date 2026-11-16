@@ -10,6 +10,10 @@ const EMBEDDED_INDEX_HTML: &str = include_str!("../web/index.html");
 const EMBEDDED_STYLES_CSS: &str = include_str!("../web/styles.css");
 const EMBEDDED_APP_JS: &str = include_str!("../web/app.js");
 
+const EMBEDDED_PUB_INDEX_HTML: &str = include_str!("../web_publico/index.html");
+const EMBEDDED_PUB_STYLES_CSS: &str = include_str!("../web_publico/styles.css");
+const EMBEDDED_PUB_APP_JS: &str = include_str!("../web_publico/app.js");
+
 pub struct HttpResponse {
     pub status_code: u16,
     pub status_text: &'static str,
@@ -104,19 +108,47 @@ pub fn run_web_server(port: u16, workspace_dir: PathBuf) -> std::io::Result<()> 
     let addr = format!("127.0.0.1:{}", active_port);
     let comm = Arc::new(Mutex::new(ToolCommunicator::new(workspace_dir.clone())));
 
+    // Levantar también un puerto independiente dedicado al Portal Público General (active_port + 1)
+    let public_port = active_port.saturating_add(1);
+    let public_listener_opt = TcpListener::bind(format!("127.0.0.1:{}", public_port)).ok();
+
     println!("==================================================================");
-    println!("  AULAFORJA: Plataforma Web y Comunicador de Materiales Didácticos");
+    println!("  AULAFORJA & RINCÓN DIDÁCTICO: Servidores Web Activos");
     println!("==================================================================");
-    println!("  • URL Local:          http://{}", addr);
-    println!("  • Directorio Base:    {}", workspace_dir.display());
+    println!("  • Estudio Técnico / Comunicador: http://{}", addr);
+    println!("  • Portal Público (Ruta):         http://{}/publico", addr);
+    if public_listener_opt.is_some() {
+        println!(
+            "  • Portal Público (Puerto propio): http://127.0.0.1:{}/",
+            public_port
+        );
+    }
+    println!("  • Directorio Base:               {}", workspace_dir.display());
     if let Ok(guard) = comm.lock() {
         println!(
-            "  • Herramientas listas: {} registradas en el Comunicador",
-            guard.list_manifests().len()
+            "  • Herramientas en Comunicador:   {} generadores ({} paquetes públicos)",
+            guard.list_manifests().len(),
+            guard.list_public_presets().len()
         );
     }
     println!("  • Presiona Ctrl+C para detener el servidor.");
     println!();
+
+    if let Some(pub_listener) = public_listener_opt {
+        let comm_pub = Arc::clone(&comm);
+        let ws_pub = workspace_dir.clone();
+        thread::spawn(move || {
+            for stream_res in pub_listener.incoming() {
+                if let Ok(stream) = stream_res {
+                    let c = Arc::clone(&comm_pub);
+                    let w = ws_pub.clone();
+                    thread::spawn(move || {
+                        let _ = handle_client(stream, c, w, true);
+                    });
+                }
+            }
+        });
+    }
 
     for stream_res in listener.incoming() {
         match stream_res {
@@ -124,7 +156,7 @@ pub fn run_web_server(port: u16, workspace_dir: PathBuf) -> std::io::Result<()> 
                 let comm_clone = Arc::clone(&comm);
                 let ws_clone = workspace_dir.clone();
                 thread::spawn(move || {
-                    let _ = handle_client(stream, comm_clone, ws_clone);
+                    let _ = handle_client(stream, comm_clone, ws_clone, false);
                 });
             }
             Err(e) => {
@@ -140,6 +172,7 @@ fn handle_client(
     mut stream: TcpStream,
     comm: Arc<Mutex<ToolCommunicator>>,
     workspace_dir: PathBuf,
+    public_default_root: bool,
 ) -> std::io::Result<()> {
     let mut buffer = [0u8; 16384];
     let bytes_read = stream.read(&mut buffer)?;
@@ -153,7 +186,13 @@ fn handle_client(
     let method = parts.next().unwrap_or("GET");
     let raw_target = parts.next().unwrap_or("/");
 
-    let response = route_request(method, raw_target, &comm, &workspace_dir);
+    let effective_target = if public_default_root && (raw_target == "/" || raw_target == "/index.html") {
+        "/publico"
+    } else {
+        raw_target
+    };
+
+    let response = route_request(method, effective_target, &comm, &workspace_dir);
     let bytes = response.into_http_bytes();
     stream.write_all(&bytes)?;
     stream.flush()?;
@@ -174,7 +213,7 @@ pub fn route_request(
     let path = percent_decode(raw_path);
     let params = parse_query_params(raw_query);
 
-    // 1. Activos estáticos de la interfaz web
+    // 1. Activos estáticos de la interfaz web (Estudio Técnico y Portal Público)
     if method == "GET" && (path == "/" || path == "/index.html") {
         let html = fs::read_to_string(workspace_dir.join("web/index.html"))
             .unwrap_or_else(|_| EMBEDDED_INDEX_HTML.to_string());
@@ -191,7 +230,46 @@ pub fn route_request(
         return HttpResponse::ok_text("application/javascript; charset=utf-8", js);
     }
 
+    if method == "GET"
+        && (path == "/publico"
+            || path == "/publico/"
+            || path == "/publico/index.html"
+            || path == "/trans"
+            || path == "/trans/"
+            || path == "/publico/trans"
+            || path == "/publico/trans/")
+    {
+        let html = fs::read_to_string(workspace_dir.join("web_publico/index.html"))
+            .unwrap_or_else(|_| EMBEDDED_PUB_INDEX_HTML.to_string());
+        return HttpResponse::ok_text("text/html; charset=utf-8", html);
+    }
+    if method == "GET" && path == "/publico/styles.css" {
+        let css = fs::read_to_string(workspace_dir.join("web_publico/styles.css"))
+            .unwrap_or_else(|_| EMBEDDED_PUB_STYLES_CSS.to_string());
+        return HttpResponse::ok_text("text/css; charset=utf-8", css);
+    }
+    if method == "GET" && path == "/publico/app.js" {
+        let js = fs::read_to_string(workspace_dir.join("web_publico/app.js"))
+            .unwrap_or_else(|_| EMBEDDED_PUB_APP_JS.to_string());
+        return HttpResponse::ok_text("application/javascript; charset=utf-8", js);
+    }
+
     // 2. Endpoints del Comunicador Backend
+    if method == "GET" && path == "/api/presets" {
+        let Ok(guard) = comm.lock() else {
+            return HttpResponse::error_json(500, "Internal Server Error", "Lock error");
+        };
+        let presets = guard.list_public_presets();
+        let mut json = String::from("{\"status\":\"ok\",\"presets\":[");
+        for (i, p) in presets.iter().enumerate() {
+            if i > 0 {
+                json.push(',');
+            }
+            json.push_str(&p.to_json());
+        }
+        json.push_str("]}");
+        return HttpResponse::ok_json(json);
+    }
     if method == "GET" && path == "/api/tools" {
         let Ok(guard) = comm.lock() else {
             return HttpResponse::error_json(500, "Internal Server Error", "Lock error");
@@ -413,5 +491,17 @@ mod tests {
         assert_eq!(res_mat.status_code, 200);
         let body_mat = String::from_utf8_lossy(&res_mat.body);
         assert!(body_mat.contains("palabrea_"));
+
+        // 5. Portal Público (/publico) y paquetes preconfigurados (/api/presets)
+        let res_pub = route_request("GET", "/publico", &comm, &tmp_dir);
+        assert_eq!(res_pub.status_code, 200);
+        let body_pub = String::from_utf8_lossy(&res_pub.body);
+        assert!(body_pub.contains("Rincón Didáctico"));
+
+        let res_presets = route_request("GET", "/api/presets", &comm, &tmp_dir);
+        assert_eq!(res_presets.status_code, 200);
+        let body_presets = String::from_utf8_lossy(&res_presets.body);
+        assert!(body_presets.contains("\"sumas-iniciales\""));
+        assert!(body_presets.contains("\"palabrea-familiar-completo\""));
     }
 }

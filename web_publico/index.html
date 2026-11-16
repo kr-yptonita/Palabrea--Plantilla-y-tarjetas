@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rincón Didáctico: Fichas gratuitas para imprimir</title>
+  <link rel="stylesheet" href="/publico/styles.css" />
+</head>
+<body>
+  <!-- 1. BARRA SUPERIOR UTILITARIA NEGRA (ESTILO REFERENCIA 1) -->
+  <div class="top-utility-bar">
+    <div class="utility-inner">
+      <div class="utility-left">
+        <span>CATÁLOGO 100% GRATUITO</span>
+        <span class="utility-sep">|</span>
+        <span>GENERACIÓN INFINITA EN PDF</span>
+        <span class="utility-sep">|</span>
+        <span>SOLUCIONARIO INCLUIDO</span>
+      </div>
+      <div class="utility-right">
+        <div class="utility-paper-switch" role="group" aria-label="Formato de papel">
+          <span class="utility-label">FORMATO DE HOJA:</span>
+          <button type="button" class="paper-btn active" data-paper="a4">A4</button>
+          <button type="button" class="paper-btn" data-paper="letter">CARTA (LETTER)</button>
+        </div>
+        <span class="utility-sep">|</span>
+        <button type="button" class="utility-theme-btn" id="pub-theme-btn" title="Cambiar modo claro/oscuro">
+          MODO OSCURO
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CABECERA EDITORIAL BLANCA CON NAVEGACIÓN Y LÍNEA MULTICOLOR (REFERENCIAS 1 Y 3) -->
+  <header class="editorial-header">
+    <div class="header-inner">
+      <a href="#top" class="brand-wordmark" id="brand-reset-link">RINCÓN DIDÁCTICO</a>
+
+      <nav class="editorial-nav" aria-label="Categorías del catálogo">
+        <a href="#inicio" class="ed-nav-link ed-nav-anchor">
+          INICIO
+        </a>
+        <button type="button" class="ed-nav-link active" data-subject="all">
+          TODO EL CATÁLOGO <span class="chev">▾</span>
+        </button>
+        <button type="button" class="ed-nav-link" data-subject="matematicas">
+          MATEMÁTICAS <span class="chev">▾</span>
+        </button>
+        <button type="button" class="ed-nav-link" data-subject="lectura">
+          LECTURA Y ESCRITURA <span class="chev">▾</span>
+        </button>
+        <button type="button" class="ed-nav-link" data-subject="palabras">
+          VOCABULARIO <span class="chev">▾</span>
+        </button>
+        <button type="button" class="ed-nav-link" data-subject="featured">
+          DESTACADOS <span class="chev">▾</span>
+        </button>
+      </nav>
+
+      <div class="header-search-wrap">
+        <input
+          type="search"
+          id="pub-search-input"
+          class="header-search-input"
+          placeholder="Buscar ficha gratuita..."
+          aria-label="Buscar ficha educativa"
+        />
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </div>
+    </div>
+    <div class="rainbow-divider"></div>
+  </header>
+
+  <main id="top">
+    <!-- 2.5 PÁGINA DE INICIO: PROYECTO DE CÓDIGO ABIERTO + MUESTRA REAL -->
+    <section class="about-open-source-section" id="inicio">
+      <div class="about-split-container">
+        <div class="about-split-copy">
+          <span class="about-kicker">Código abierto para docentes</span>
+          <h1 class="about-title">Fichas de matemáticas y lectura listas para imprimir en segundos</h1>
+          <p class="about-lead">
+            <strong>Rincón Didáctico</strong> nació para ahorrar tiempo al preparar clase. Generas hojas de ejercicios distintos en PDF, con números grandes y espacio suficiente para que los niños no se pierdan al hacer las cuentas, sin registros ni suscripciones.
+          </p>
+
+          <div class="about-actions">
+            <a href="#catalogo-section" class="pub-btn primary">Ir al catálogo de fichas</a>
+            <a href="#areas-section" class="pub-btn secondary">Ver por materia</a>
+          </div>
+
+          <div class="about-animated-rotator" id="about-rotator" aria-live="polite">
+            <div class="rotator-slide active">
+              <h4>Hecho para la sala de profesores</h4>
+              <p>Descargas el PDF en A4 o Carta y lo mandas directo a la impresora, sin editar márgenes ni fuentes.</p>
+            </div>
+            <div class="rotator-slide">
+              <h4>Cada copia es distinta</h4>
+              <p>Si necesitas dos versiones del mismo tema para evitar que se copien, generas otra hoja con un clic.</p>
+            </div>
+            <div class="rotator-slide">
+              <h4>Software libre (GPL v3)</h4>
+              <p>Cualquier escuela o docente puede usar, estudiar y adaptar la herramienta libremente.</p>
+            </div>
+            <div class="rotator-dots" aria-hidden="true">
+              <span class="rotator-dot active"></span>
+              <span class="rotator-dot"></span>
+              <span class="rotator-dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero-sample-sheet" aria-label="Ejemplo real de ficha generada">
+          <div class="sample-sheet-header">
+            <span class="sample-sheet-tag">Muestra real · 3.º Primaria</span>
+            <span class="sample-sheet-meta">Nombre: ______________________</span>
+          </div>
+          <div class="sample-sheet-body">
+            <div class="sample-exercise">
+              <span class="sample-num">1.</span>
+              <span class="sample-math">348 × 26 = ______</span>
+            </div>
+            <div class="sample-exercise">
+              <span class="sample-num">2.</span>
+              <span class="sample-math">84 | 4 &nbsp;&nbsp;o&nbsp;&nbsp; 4 ⟌ 84</span>
+            </div>
+            <div class="sample-exercise">
+              <span class="sample-num">3.</span>
+              <span class="sample-text">El perro juega en el ________ verde.</span>
+            </div>
+            <div class="sample-exercise">
+              <span class="sample-num">4.</span>
+              <span class="sample-text">Sinónimo de <strong>veloz</strong>: ____________</span>
+            </div>
+          </div>
+          <div class="sample-sheet-footer">
+            Incluye hoja de respuestas al final del PDF
+          </div>
+        </aside>
+      </div>
+
+      <a href="#areas-section" class="scroll-down-cue">
+        <span>Bajar al catálogo</span>
+      </a>
+    </section>
+
+    <!-- 3. HERO EDITORIAL CON 3 GRANDES TARJETAS VISUALES -->
+    <section class="hero-showcase" id="areas-section">
+      <div class="hero-container">
+        <h2 class="hero-main-title">Elige por materia</h2>
+        <p class="hero-main-subtitle">
+          Filtra directamente las fichas que necesitas para tu grupo
+        </p>
+
+        <div class="hero-three-tiles">
+          <button type="button" class="hero-tile tile-math" data-filter-subject="matematicas">
+            <div class="tile-art" aria-hidden="true">
+              <div class="tile-math-decor">
+                <span>348 × 26</span>
+                <span>840 ÷ 12</span>
+                <span>529 + 384</span>
+              </div>
+            </div>
+            <div class="tile-overlay"></div>
+            <div class="tile-content">
+              <span class="tile-title">MATEMÁTICAS PASO A PASO</span>
+              <span class="tile-cta">Ver fichas</span>
+            </div>
+          </button>
+
+          <button type="button" class="hero-tile tile-reading" data-filter-subject="lectura">
+            <div class="tile-art" aria-hidden="true">
+              <div class="tile-reading-decor">
+                <span>a) lectura &nbsp; b) ciencia &nbsp; c) naturaleza</span>
+                <span>El perro juega en el ________ verde.</span>
+              </div>
+            </div>
+            <div class="tile-overlay"></div>
+            <div class="tile-content">
+              <span class="tile-title">LECTURA Y COMPRENSIÓN</span>
+              <span class="tile-cta">Ver fichas</span>
+            </div>
+          </button>
+
+          <button type="button" class="hero-tile tile-words" data-filter-subject="palabras">
+            <div class="tile-art" aria-hidden="true">
+              <div class="tile-words-decor">
+                <span class="w1">MARIPOSA</span>
+                <span class="w2">guitarra</span>
+                <span class="w3">RELÁMPAGO</span>
+                <span class="w4">elefante</span>
+              </div>
+            </div>
+            <div class="tile-overlay"></div>
+            <div class="tile-content">
+              <span class="tile-title">JUEGOS DE VOCABULARIO</span>
+              <span class="tile-cta">Ver fichas</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. BLOQUE ASIMÉTRICO: DETALLES PRÁCTICOS Y DUDAS FRECUENTES -->
+    <section class="faq-asymmetric-section">
+      <div class="faq-asymmetric-container">
+        <div class="faq-intro-col">
+          <h3>Pensado para el aula real</h3>
+          <p>
+            Números grandes y espacio suficiente para que los niños no se pierdan al hacer las cuentas. Cada hoja sale lista para fotocopiar o imprimir en A4 o Carta.
+          </p>
+        </div>
+
+        <div class="faq-list-col">
+          <div class="faq-row">
+            <h4>¿Las divisiones vienen con casita o con caja?</h4>
+            <p>Con las dos. Puedes elegir Caja (84 | 4) o Casita / Galera (4 ⟌ 84) directamente en cada ficha.</p>
+          </div>
+          <div class="faq-row">
+            <h4>¿Se repiten los ejercicios si imprimo varias veces?</h4>
+            <p>No. Cada vez que pulsas «Generar otra», se crean operaciones y oraciones nuevas para evitar que se copien entre compañeros.</p>
+          </div>
+          <div class="faq-row">
+            <h4>¿Dónde están las respuestas?</h4>
+            <p>Siempre en la última página del mismo PDF, para que puedas revisar rápido.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FRANJA NEGRA + BLOQUE CÁLIDO DE 3 COLUMNAS POR GRADO ESCOLAR (REFERENCIA 2) -->
+    <section class="collections-banner-block" id="grados-section">
+      <div class="charcoal-strip">
+        <h2>Colecciones gratuitas diseñadas para cada etapa de primaria</h2>
+      </div>
+
+      <div class="peach-columns-strip" role="tablist" aria-label="Seleccionar grado escolar">
+        <button type="button" class="peach-col" data-grade="ciclo1">
+          <div class="peach-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path d="M12 22V12M12 12C12 7 7 4 3 6c0 5 4 8 9 6zm0 0c0-5 5-8 9-6 0 5-4 8-9 6z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <span class="peach-title">1.º Y 2.º PRIMARIA</span>
+          <span class="peach-sub">6 a 8 años · Sumas, restas y lectura</span>
+          <span class="peach-cta">Explorar ahora ›</span>
+        </button>
+
+        <button type="button" class="peach-col peach-col-mid" data-grade="ciclo2">
+          <div class="peach-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+          </div>
+          <span class="peach-title">3.º Y 4.º PRIMARIA</span>
+          <span class="peach-sub">8 a 10 años · Multiplicación, división y frases</span>
+          <span class="peach-cta">Explorar ahora ›</span>
+        </button>
+
+        <button type="button" class="peach-col" data-grade="ciclo3">
+          <div class="peach-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.9">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <span class="peach-title">5.º Y 6.º PRIMARIA</span>
+          <span class="peach-sub">10 a 13 años · División larga y sinónimos</span>
+          <span class="peach-cta">Explorar ahora ›</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 6. CATÁLOGO VISUAL DE FICHAS GRATUITAS (REFERENCIAS 2 Y 3) -->
+    <section class="catalog-showcase-section" id="catalogo-section">
+      <div class="catalog-header-center">
+        <h2 class="section-heading" id="active-collection-heading">COLECCIÓN COMPLETA DE MATERIALES</h2>
+        <p class="section-subheading" id="results-count-text">
+          Selecciona cualquier material para ver su vista previa, elegir formato o descargarlo gratis en PDF
+        </p>
+      </div>
+
+      <div class="trending-Subbar">
+        <div class="trending-left">
+          <span class="trending-title">Materiales Disponibles</span>
+          <button type="button" class="see-all-link" id="reset-filters-btn">
+            Ver todas las colecciones ›
+          </button>
+        </div>
+
+        <div class="grade-filter-pills">
+          <button type="button" class="grade-card active" data-grade="all">Todos los Grados</button>
+          <button type="button" class="grade-card" data-grade="ciclo1">1.º – 2.º Primaria</button>
+          <button type="button" class="grade-card" data-grade="ciclo2">3.º – 4.º Primaria</button>
+          <button type="button" class="grade-card" data-grade="ciclo3">5.º – 6.º Primaria</button>
+        </div>
+      </div>
+
+      <!-- Píldoras secundarias de materia -->
+      <div class="subject-pills" id="subject-pills">
+        <button type="button" class="subject-pill active" data-subject="all">Todas las áreas</button>
+        <button type="button" class="subject-pill" data-subject="matematicas">Matemáticas Paso a Paso</button>
+        <button type="button" class="subject-pill" data-subject="lectura">Lectura y Escritura</button>
+        <button type="button" class="subject-pill" data-subject="palabras">Juegos Palabrea</button>
+        <button type="button" class="subject-pill" data-subject="featured">Destacados</button>
+      </div>
+
+      <!-- CUADRÍCULA DE TARJETAS VISUALES -->
+      <div class="presets-grid" id="presets-grid" aria-live="polite">
+        <!-- Renderizado dinámicamente desde /api/presets -->
+      </div>
+    </section>
+
+    <!-- 7. APARTADO DE LICENCIA GPL v3 -->
+    <section class="license-section" id="licencia">
+      <div class="license-container">
+        <span class="about-kicker">SOFTWARE LIBRE Y CÓDIGO ABIERTO</span>
+        <h2 class="license-title">LICENCIA PÚBLICA GENERAL DE GNU (GPL v3)</h2>
+        <p class="license-desc">
+          Este proyecto se publica bajo la licencia <strong>GNU General Public License v3.0 (GPL v3)</strong>. Esto garantiza que la plataforma permanecerá siempre abierta, gratuita y al servicio de la comunidad educativa: cualquier docente, escuela o desarrollador puede utilizarla libremente, revisar cómo funciona y adaptarla a sus necesidades.
+        </p>
+        <div class="license-pillars">
+          <div class="license-pillar">
+            <h4>Uso Libre en el Aula</h4>
+            <p>Puedes generar, imprimir y repartir todas las fichas PDF que necesites para tus clases o estudiantes sin restricciones comerciales ni suscripciones.</p>
+          </div>
+          <div class="license-pillar">
+            <h4>Estudio y Adaptación</h4>
+            <p>El código fuente es abierto para que cualquier persona pueda estudiarlo, traducirlo, crear nuevas materias o personalizar los generadores.</p>
+          </div>
+          <div class="license-pillar">
+            <h4>Copyleft (Misma Licencia)</h4>
+            <p>Cualquier versión modificada o mejora que se redistribuya debe mantener la licencia GPL v3, asegurando que el proyecto siga siendo libre para todos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL DE VISTA PREVIA E IMPRESIÓN RÁPIDA -->
+  <div class="modal-backdrop" id="preview-modal" hidden>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-preset-title">
+      <div class="modal-header">
+        <div>
+          <span class="modal-grade-badge" id="modal-preset-grade">Primaria</span>
+          <h3 id="modal-preset-title">Vista Previa de la Ficha</h3>
+          <p id="modal-preset-subtitle" class="modal-subtitle"></p>
+        </div>
+        <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Cerrar vista previa">✕</button>
+      </div>
+
+      <div class="modal-toolbar">
+        <div class="modal-toolbar-left">
+          <button type="button" class="pub-btn secondary" id="modal-new-variation-btn">
+            Generar otra ficha diferente
+          </button>
+          <div class="modal-div-notation-switch" id="modal-div-notation-box" hidden>
+            <span class="notation-switch-label">Opción de división:</span>
+            <button type="button" class="notation-opt-btn" data-notation="tradicional">
+              Caja (84 | 4)
+            </button>
+            <button type="button" class="notation-opt-btn" data-notation="galera">
+              Casita / Galera (4 ⟌ 84)
+            </button>
+          </div>
+        </div>
+        <div class="modal-toolbar-right">
+          <div class="modal-paper-switch" role="group" aria-label="Cambiar tamaño de hoja">
+            <span class="notation-switch-label">Hoja:</span>
+            <button type="button" class="paper-btn modal-paper-btn active" data-paper="a4">A4</button>
+            <button type="button" class="paper-btn modal-paper-btn" data-paper="letter">Carta</button>
+          </div>
+          <a id="modal-download-link" href="#" download class="pub-btn primary">
+            Descargar PDF Gratis (A4)
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-pdf-pane">
+          <iframe id="modal-pdf-iframe" title="Vista previa del PDF listo para imprimir"></iframe>
+        </div>
+        <aside class="modal-samples-pane">
+          <h4>Ejercicios incluidos en esta hoja</h4>
+          <p class="samples-note">Al final del PDF se incluye la hoja de respuestas completa.</p>
+          <ul id="modal-samples-list" class="modal-samples-list"></ul>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA EDITORIAL -->
+  <footer class="pub-footer">
+    <div class="pub-footer-inner">
+      <div>
+        <strong>RINCÓN DIDÁCTICO</strong> · Catálogo abierto y gratuito de materiales educativos listos para imprimir.
+      </div>
+      <div class="footer-links">
+        <span class="studio-link" aria-disabled="true">Estudio Avanzado &amp; Comunicador · Próximamente</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- NOTIFICACIÓN FLOTANTE -->
+  <div id="pub-toast" class="pub-toast" hidden></div>
+
+  <script src="/publico/app.js"></script>
+</body>
+</html>
